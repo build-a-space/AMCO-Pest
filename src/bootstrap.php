@@ -68,11 +68,11 @@ function abs_url(string $slug): string
     return rtrim(site('base_url'), '/') . url($slug);
 }
 
-/** Asset URL with a cache-busting version from the file's mtime. */
+/** Asset URL with a cache-busting version from the file's contents (mtimes are fixed on Vercel). */
 function asset(string $path): string
 {
     $file = ROOT . '/public/assets/' . ltrim($path, '/');
-    $v = is_file($file) ? filemtime($file) : 0;
+    $v = is_file($file) ? substr(md5_file($file), 0, 10) : '';
     return '/assets/' . ltrim($path, '/') . ($v ? '?v=' . $v : '');
 }
 
