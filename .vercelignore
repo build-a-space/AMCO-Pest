@@ -1,0 +1,6 @@
+node_modules
+content/raw
+storage
+public/uploads/*
+!public/uploads/.htaccess
+data/crawl-report.json
