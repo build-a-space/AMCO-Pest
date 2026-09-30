@@ -1,0 +1,18 @@
+{
+  "name": "amco-pest-site",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Amco Pest Solutions website – PHP site with Node.js tooling",
+  "type": "module",
+  "scripts": {
+    "dev": "php -S localhost:8000 -t public public/router.php",
+    "crawl": "node scripts/crawl.mjs",
+    "check": "node scripts/check.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "cheerio": "^1.2.0"
+  }
+}

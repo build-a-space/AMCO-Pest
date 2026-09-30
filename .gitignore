@@ -1,0 +1,6 @@
+node_modules/
+storage/
+content/raw/
+data/crawl-report.json
+.DS_Store
+.env
