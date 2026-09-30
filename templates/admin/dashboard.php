@@ -109,13 +109,7 @@ $field = function (string $name, string $label, ?string $value, string $type = '
         </form>
 
         <?php elseif ($tab === 'leads'):
-            $rows = [];
-            $file = ROOT . '/storage/leads.csv';
-            if (is_file($file) && ($fh = fopen($file, 'r'))) {
-                while (($r = fgetcsv($fh, 0, ',', '"', '')) !== false) $rows[] = $r;
-                fclose($fh);
-            }
-            $rows = array_reverse($rows);
+            try { $rows = leads_all(500); } catch (RuntimeException $ex) { $rows = []; echo '<p class="msg msg--err">' . e($ex->getMessage()) . '</p>'; }
         ?>
         <p><a class="btn" href="<?= ADMIN_PATH ?>?download=leads">Download all leads (CSV)</a> <span class="help"><?= count($rows) ?> total</span></p>
         <?php if (!$rows): ?>
@@ -124,7 +118,7 @@ $field = function (string $name, string $label, ?string $value, string $type = '
             <div class="table-wrap"><table>
                 <thead><tr><th>Date</th><th>Name</th><th>Phone</th><th>Email</th><th>ZIP</th><th>Service</th><th>Message</th><th>Page</th></tr></thead>
                 <tbody>
-                <?php foreach (array_slice($rows, 0, 200) as $r): [$date, , $name, $phone, $email, $zip, $service, $msg, $pg] = array_pad($r, 9, ''); ?>
+                <?php foreach (array_slice($rows, 0, 200) as $r): ['date' => $date, 'name' => $name, 'phone' => $phone, 'email' => $email, 'zip' => $zip, 'service' => $service, 'message' => $msg, 'page' => $pg] = $r + array_fill_keys(LEAD_FIELDS, ''); ?>
                     <tr>
                         <td><?= e(date('M j, Y g:ia', strtotime($date) ?: 0)) ?></td>
                         <td><?= e($name) ?></td>
@@ -143,7 +137,7 @@ $field = function (string $name, string $label, ?string $value, string $type = '
         <?php elseif ($tab === 'account'): ?>
         <form method="post" action="<?= ADMIN_PATH ?>?tab=account" class="panel">
             <input type="hidden" name="csrf" value="<?= e($csrf) ?>">
-            <?php $field('username', 'Username', $_SESSION['admin_user'] ?? ''); ?>
+            <?php $field('username', 'Username', admin_user() ?? ''); ?>
             <label>Current password <input type="password" name="current" autocomplete="current-password" required></label>
             <label>New password (10+ characters) <input type="password" name="new" autocomplete="new-password" minlength="10" required></label>
             <label>Confirm new password <input type="password" name="confirm" autocomplete="new-password" minlength="10" required></label>

@@ -15,6 +15,26 @@ npm run check        # in a second terminal: verifies every URL, title, meta, ca
 
 Requires PHP 8.1+ and Node 20+.
 
+## Hosting on Vercel
+
+The site runs on Vercel with the community PHP runtime (`vercel-php`, PHP 8.4):
+
+- `vercel.json` sends every request to `api/index.php` (which loads `public/index.php`); `public/` is served as static files. Raw `.php`/`.htaccess` paths are never served as files.
+- Vercel's filesystem is read-only, so dashboard settings, the admin login, form leads and uploaded logos are stored in **Vercel Blob** (`src/storage.php`). Settings, login and leads are encrypted with `APP_KEY` before upload; images are public.
+- Sign-in and form protection use signed cookies (no server sessions), so they work across Vercel's serverless instances.
+
+Environment variables (Project → Settings → Environment Variables):
+
+| Variable | Required | Purpose |
+|---|---|---|
+| `BLOB_READ_WRITE_TOKEN` | yes | Added automatically when the Blob store is connected to the project |
+| `APP_KEY` | yes | Random 32-byte key (base64) used to encrypt stored data and sign cookies. Never change it after launch, or saved settings/leads become unreadable |
+| `ADMIN_USER` / `ADMIN_PASSWORD` | first login | Initial dashboard login; change the password under **Account** after signing in |
+| `SITE_URL` | optional | Canonical base URL (default `https://amcopest.com`) |
+| `RESEND_API_KEY`, `MAIL_FROM` | optional | Email each lead via Resend (Vercel has no mail server) |
+
+On a regular PHP host none of this is needed: without `BLOB_READ_WRITE_TOKEN` the site stores everything on local disk in `storage/` and `public/uploads/`.
+
 ## Admin dashboard
 
 Private URL: **`/dashboard-4-admin-panel`** (not linked anywhere, not in the sitemap, always `noindex`).

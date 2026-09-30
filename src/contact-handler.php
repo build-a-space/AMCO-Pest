@@ -2,7 +2,6 @@
 // Handles POST /contact. Validates, drops obvious spam, stores the lead and
 // optionally emails it. Responds with JSON for fetch() and redirects otherwise.
 
-start_session();
 
 $wantsJson = str_contains($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json');
 
@@ -51,26 +50,47 @@ if ($errors) {
     $respond(false, 'Please fix the highlighted fields.', $errors);
 }
 
-$dir = ROOT . '/storage';
-if (!is_dir($dir)) {
-    mkdir($dir, 0775, true);
-}
-$fh = fopen($dir . '/leads.csv', 'a');
-if ($fh) {
-    fputcsv($fh, array_merge([date('c'), $_SERVER['REMOTE_ADDR'] ?? ''], array_values($data)));
-    fclose($fh);
+try {
+    lead_append(['date' => date('c'), 'ip' => $_SERVER['HTTP_X_FORWARDED_FOR'] ?? ($_SERVER['REMOTE_ADDR'] ?? '')] + $data);
+} catch (RuntimeException $e) {
+    error_log('Lead storage failed: ' . $e->getMessage());
 }
 
 if ($to = site('lead_email')) {
+    $subject = 'New website lead: ' . str_replace(["\r", "\n"], ' ', $data['name']);
     $body = '';
     foreach ($data as $k => $v) {
         $body .= ucfirst($k) . ': ' . $v . "\n";
     }
-    $headers = 'From: ' . site('email');
-    if ($data['email'] !== '') {
-        $headers .= "\r\nReply-To: " . str_replace(["\r", "\n"], '', $data['email']);
-    }
-    @mail($to, 'New website lead: ' . str_replace(["\r", "\n"], ' ', $data['name']), $body, $headers);
+    send_lead_email($to, $subject, $body, $data['email']);
 }
 
 $respond(true, 'Thanks! A member of our team will contact you shortly.');
+
+/**
+ * Email a lead. Uses the Resend API when RESEND_API_KEY is set (needed on Vercel,
+ * which has no mail server); otherwise falls back to PHP mail().
+ */
+function send_lead_email(string $to, string $subject, string $body, string $replyTo): void
+{
+    $key = (string) getenv('RESEND_API_KEY');
+    if ($key !== '') {
+        $payload = ['from' => getenv('MAIL_FROM') ?: site('name') . ' Website <onboarding@resend.dev>',
+            'to' => [$to], 'subject' => $subject, 'text' => $body];
+        if (filter_var($replyTo, FILTER_VALIDATE_EMAIL)) {
+            $payload['reply_to'] = $replyTo;
+        }
+        $ch = curl_init('https://api.resend.com/emails');
+        curl_setopt_array($ch, [CURLOPT_POST => true, CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 10,
+            CURLOPT_HTTPHEADER => ['Authorization: Bearer ' . $key, 'Content-Type: application/json'],
+            CURLOPT_POSTFIELDS => json_encode($payload)]);
+        curl_exec($ch);
+        curl_close($ch);
+        return;
+    }
+    $headers = 'From: ' . site('email');
+    if (filter_var($replyTo, FILTER_VALIDATE_EMAIL)) {
+        $headers .= "\r\nReply-To: " . $replyTo;
+    }
+    @mail($to, $subject, $body, $headers);
+}

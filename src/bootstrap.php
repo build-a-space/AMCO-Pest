@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 define('ROOT', dirname(__DIR__));
 
+require ROOT . '/src/storage.php';
 $GLOBALS['site'] = load_settings();
 
 require ROOT . '/src/catalog.php';
@@ -14,8 +15,7 @@ require ROOT . '/src/seo.php';
 function load_settings(): array
 {
     $defaults = require ROOT . '/config/site.php';
-    $file = ROOT . '/storage/settings.json';
-    $saved = is_file($file) ? (json_decode((string) file_get_contents($file), true) ?: []) : [];
+    $saved = data_read('settings') ?? [];
     // Lists (hours) are replaced wholesale rather than merged index by index.
     foreach ($saved as $k => $v) {
         $defaults[$k] = (is_array($v) && is_array($defaults[$k] ?? null) && !array_is_list($v))
@@ -24,16 +24,10 @@ function load_settings(): array
     return $defaults;
 }
 
-/** Persist dashboard edits (only the keys passed in) to storage/settings.json. */
+/** Persist dashboard edits (only the keys passed in). */
 function save_settings(array $changes): void
 {
-    $file = ROOT . '/storage/settings.json';
-    if (!is_dir(dirname($file))) {
-        mkdir(dirname($file), 0775, true);
-    }
-    $saved = is_file($file) ? (json_decode((string) file_get_contents($file), true) ?: []) : [];
-    $saved = array_replace($saved, $changes);
-    file_put_contents($file, json_encode($saved, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE), LOCK_EX);
+    data_write('settings', array_replace(data_read('settings') ?? [], $changes));
     $GLOBALS['site'] = load_settings();
 }
 
@@ -149,25 +143,50 @@ function imported_content(string $slug): ?array
     return ['html' => (string) file_get_contents($html), 'meta' => $meta];
 }
 
-function start_session(): void
+/*
+ * No server-side sessions: serverless hosts (Vercel) run many short-lived
+ * instances, so state lives in signed cookies instead.
+ */
+function is_https(): bool
 {
-    if (session_status() === PHP_SESSION_ACTIVE) {
-        return;
-    }
-    $https = ($_SERVER['HTTPS'] ?? '') === 'on' || ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https';
-    session_name('amco_sid');
-    session_set_cookie_params(['lifetime' => 0, 'path' => '/', 'secure' => $https, 'httponly' => true, 'samesite' => 'Lax']);
-    session_start();
+    return ($_SERVER['HTTPS'] ?? '') === 'on' || ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https';
 }
 
+function set_app_cookie(string $name, string $value, int $expires = 0): void
+{
+    setcookie($name, $value, ['expires' => $expires, 'path' => '/', 'secure' => is_https(), 'httponly' => true, 'samesite' => 'Lax']);
+    $_COOKIE[$name] = $value;
+}
+
+/** Double-submit CSRF token: random value in a cookie that each form must echo back. */
 function csrf_token(): string
 {
-    start_session();
-    return $_SESSION['csrf'] ??= bin2hex(random_bytes(16));
+    $t = (string) ($_COOKIE['amco_csrf'] ?? '');
+    if (!preg_match('/^[a-f0-9]{32}$/', $t)) {
+        $t = bin2hex(random_bytes(16));
+        set_app_cookie('amco_csrf', $t);
+    }
+    return $t;
 }
 
 function csrf_valid(): bool
 {
-    start_session();
-    return hash_equals($_SESSION['csrf'] ?? '', (string) ($_POST['csrf'] ?? ''));
+    $cookie = (string) ($_COOKIE['amco_csrf'] ?? '');
+    return $cookie !== '' && hash_equals($cookie, (string) ($_POST['csrf'] ?? ''));
+}
+
+/** Tamper-proof token: base64(payload).hmac */
+function sign_token(array $payload): string
+{
+    $body = rtrim(strtr(base64_encode(json_encode($payload)), '+/', '-_'), '=');
+    return $body . '.' . hash_hmac('sha256', $body, app_key());
+}
+
+function verify_token(string $token): ?array
+{
+    [$body, $mac] = array_pad(explode('.', $token, 2), 2, '');
+    if ($body === '' || !hash_equals(hash_hmac('sha256', $body, app_key()), $mac)) {
+        return null;
+    }
+    return json_decode((string) base64_decode(strtr($body, '-_', '+/')), true) ?: null;
 }

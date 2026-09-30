@@ -8,7 +8,6 @@ header('X-Robots-Tag: noindex, nofollow');
 header('Cache-Control: no-store');
 header('X-Frame-Options: DENY');
 
-start_session();
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $action = $_POST['action'] ?? null;
 $flash = null;
@@ -40,12 +39,12 @@ if ($method === 'POST' && $action === 'logout' && csrf_valid()) {
 
 // ---- Lead download --------------------------------------------------------
 if (($_GET['download'] ?? '') === 'leads') {
-    $file = ROOT . '/storage/leads.csv';
     header('Content-Type: text/csv; charset=utf-8');
     header('Content-Disposition: attachment; filename="amco-leads-' . date('Y-m-d') . '.csv"');
-    echo "date,ip,name,phone,email,zip,service,message,page\n";
-    if (is_file($file)) {
-        readfile($file);
+    $out = fopen('php://output', 'w');
+    fputcsv($out, LEAD_FIELDS, ',', '"', '');
+    foreach (leads_all(100000) as $row) {
+        fputcsv($out, array_values($row), ',', '"', '');
     }
     exit;
 }
@@ -145,7 +144,7 @@ if ($method === 'POST' && $action && $action !== 'login') {
                         throw new RuntimeException('The new passwords do not match.');
                     }
                     admin_set_credentials($post('username', 60) ?: $creds['username'], $new);
-                    $_SESSION['admin_user'] = $post('username', 60) ?: $creds['username'];
+                    admin_issue_cookie(admin_credentials());
                     $flash = 'Login details updated.';
                     break;
             }
@@ -187,13 +186,8 @@ function admin_store_upload(array $f, bool $allowIco = false): string
     } elseif ($ext !== 'ico' && @getimagesize($tmp) === false) {
         throw new RuntimeException('That file is not a valid image.');
     }
-    $dir = ROOT . '/public/uploads';
-    if (!is_dir($dir)) {
-        mkdir($dir, 0775, true);
+    if (!is_uploaded_file($tmp)) {
+        throw new RuntimeException('Invalid upload.');
     }
-    $name = date('Ymd-His') . '-' . bin2hex(random_bytes(4)) . '.' . $ext;
-    if (!move_uploaded_file($tmp, $dir . '/' . $name)) {
-        throw new RuntimeException('Could not save the uploaded file.');
-    }
-    return '/uploads/' . $name;
+    return upload_image($tmp, $ext);
 }
