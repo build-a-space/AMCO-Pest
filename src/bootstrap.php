@@ -194,3 +194,18 @@ function verify_token(string $token): ?array
     }
     return json_decode((string) base64_decode(strtr($body, '-_', '+/')), true) ?: null;
 }
+
+/**
+ * Photo slot: renders public/assets/img/<dir>/<name>.(webp|jpg|jpeg|png) if it exists,
+ * otherwise a branded placeholder that names the file to add.
+ */
+function photo(string $name, string $alt, string $class = '', string $dir = 'home'): string
+{
+    foreach (['webp', 'jpg', 'jpeg', 'png'] as $ext) {
+        $rel = "img/$dir/$name.$ext";
+        if (is_file(ROOT . '/public/assets/' . $rel)) {
+            return '<img class="' . e($class) . '" src="' . e(asset($rel)) . '" alt="' . e($alt) . '" loading="lazy">';
+        }
+    }
+    return '<div class="photo-slot ' . e($class) . '" role="img" aria-label="' . e($alt) . '"><span><b>' . e($alt) . '</b><small>' . e("$dir/$name.jpg") . '</small></span></div>';
+}

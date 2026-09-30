@@ -79,6 +79,10 @@ if ($method === 'POST' && $action && $action !== 'login') {
                         'phone_href' => tel_href($phone),
                         'toll_free' => $post('toll_free', 40),
                         'florida_office' => ['phone' => $fl, 'phone_href' => $fl !== '' ? tel_href($fl) : ''],
+                        'second_office' => [
+                            'label' => $post('o2_label', 120), 'street' => $post('o2_street', 160),
+                            'city' => $post('o2_city', 120), 'phone' => $post('o2_phone', 40),
+                        ],
                         'email' => $post('email', 160),
                         'lead_email' => $post('lead_email', 160),
                         'address' => [
@@ -97,6 +101,39 @@ if ($method === 'POST' && $action && $action !== 'login') {
                     $flash = 'Business details saved.';
                     break;
 
+                case 'save_homepage':
+                    $stats = [];
+                    for ($i = 0; $i < 4; $i++) {
+                        $label = $post("stat_label_$i", 60);
+                        if ($label !== '') {
+                            $stats[] = [$label, $post("stat_value_$i", 20)];
+                        }
+                    }
+                    $plans = [];
+                    for ($i = 0; $i < 3; $i++) {
+                        $name = $post("plan_name_$i", 80);
+                        if ($name === '') {
+                            continue;
+                        }
+                        $plans[] = [
+                            'name' => $name, 'old' => $post("plan_old_$i", 30), 'price' => $post("plan_price_$i", 30),
+                            'style' => ['orange', 'gray', 'yellow'][$i],
+                            'features' => array_values(array_filter(array_map('trim', explode("\n", $post("plan_features_$i", 1000))))),
+                        ];
+                    }
+                    save_settings([
+                        'header_line1' => $post('header_line1', 120),
+                        'header_line2' => $post('header_line2', 120),
+                        'announcement' => $post('announcement', 200),
+                        'stats' => $stats,
+                        'plans' => $plans,
+                        // Embed codes are admin-only HTML/scripts, stored as entered.
+                        'form_embed' => mb_substr(trim((string) ($_POST['form_embed'] ?? '')), 0, 5000),
+                        'reviews_embed' => mb_substr(trim((string) ($_POST['reviews_embed'] ?? '')), 0, 5000),
+                    ]);
+                    $flash = 'Homepage saved.';
+                    break;
+
                 case 'save_branding':
                     $changes = [];
                     foreach (['logo' => 'logo_file', 'logo_light' => 'logo_light_file', 'favicon' => 'favicon_file', 'default_og_image' => 'og_file'] as $key => $field) {
@@ -109,7 +146,7 @@ if ($method === 'POST' && $action && $action !== 'login') {
                         }
                     }
                     $colors = [];
-                    foreach (['primary', 'accent'] as $c) {
+                    foreach (['primary', 'navy', 'accent'] as $c) {
                         $v = strtolower($post('color_' . $c, 7));
                         if (preg_match('/^#[0-9a-f]{6}$/', $v)) {
                             $colors[$c] = $v;

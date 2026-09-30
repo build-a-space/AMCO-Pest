@@ -93,3 +93,48 @@
     if (first) first.focus();
   }
 })();
+
+// Homepage tabs (Residential / Commercial / Property Managers)
+document.querySelectorAll('[data-tabs]').forEach((wrap) => {
+  const tabs = [...wrap.querySelectorAll('[role="tab"]')];
+  const select = (tab) => {
+    tabs.forEach((t) => {
+      const on = t === tab;
+      t.setAttribute('aria-selected', String(on));
+      t.tabIndex = on ? 0 : -1;
+      document.getElementById(t.getAttribute('aria-controls')).hidden = !on;
+    });
+  };
+  tabs.forEach((t, i) => {
+    t.addEventListener('click', () => select(t));
+    t.addEventListener('keydown', (e) => {
+      if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+      const next = tabs[(i + (e.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length];
+      select(next);
+      next.focus();
+    });
+  });
+});
+
+// "Why Choose Us" video: pick a random pest video and autoplay it while in view.
+document.querySelectorAll('[data-pest-videos]').forEach((box) => {
+  let list;
+  try { list = JSON.parse(box.dataset.pestVideos); } catch (e) { return; }
+  if (!list.length) return;
+  const [name, url, link] = list[Math.floor(Math.random() * list.length)];
+  const iframe = box.querySelector('iframe');
+  const linkEl = box.querySelector('[data-video-link]');
+  box.querySelector('[data-video-title]').textContent = 'Learn About ' + name;
+  linkEl.textContent = 'Learn More About ' + name;
+  linkEl.href = link;
+  iframe.title = 'Learn about ' + name;
+  iframe.src = url;
+  if (!('IntersectionObserver' in window)) return;
+  new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      const playing = iframe.src.includes('&autoplay=1');
+      if (entry.isIntersecting && !playing) iframe.src = url + '&autoplay=1';
+      else if (!entry.isIntersecting && playing) iframe.src = url;
+    });
+  }, { threshold: 0.5 }).observe(box);
+});

@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
 <link rel="stylesheet" href="<?= asset('css/main.css') ?>">
-<style>:root{--brand:<?= e(site('colors')['primary']) ?>;--accent:<?= e(site('colors')['accent']) ?>}</style>
+<style>:root{--brand:<?= e(site('colors')['primary']) ?>;--navy:<?= e(site('colors')['navy'] ?? '#0f227e') ?>;--accent:<?= e(site('colors')['accent']) ?>}</style>
 <?= schema_graph($page) ?>
 </head>
 <body class="tpl-<?= e($page['template']) ?>">

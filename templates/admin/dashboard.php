@@ -1,7 +1,7 @@
 <?php
 $s = site();
 $a = $s['address'];
-$tabs = ['business' => 'Business details', 'branding' => 'Logo & colors', 'status' => 'Site on / off', 'leads' => 'Leads', 'account' => 'Account'];
+$tabs = ['business' => 'Business details', 'homepage' => 'Homepage', 'branding' => 'Logo & colors', 'status' => 'Site on / off', 'leads' => 'Leads', 'account' => 'Account'];
 $tab = isset($tabs[$tab]) ? $tab : 'business';
 $csrf = csrf_token();
 $field = function (string $name, string $label, ?string $value, string $type = 'text', string $help = '') {
@@ -41,6 +41,13 @@ $field = function (string $name, string $label, ?string $value, string $type = '
                 <?php $field('toll_free', 'Toll-free', $s['toll_free'] ?? '', 'tel'); ?>
                 <?php $field('florida_phone', 'South Florida office – shown on Florida pages', $s['florida_office']['phone'] ?? '', 'tel', 'Leave blank to hide it.'); ?>
             </fieldset>
+            <fieldset><legend>Second office (footer)</legend>
+                <?php $o2 = $s['second_office'] ?? []; ?>
+                <?php $field('o2_label', 'Name', $o2['label'] ?? ''); ?>
+                <?php $field('o2_street', 'Street', $o2['street'] ?? ''); ?>
+                <?php $field('o2_city', 'City, State ZIP', $o2['city'] ?? ''); ?>
+                <?php $field('o2_phone', 'Phone', $o2['phone'] ?? '', 'tel', 'Leave the phone blank to hide this office.'); ?>
+            </fieldset>
             <fieldset><legend>Email</legend>
                 <?php $field('email', 'Public email address', $s['email'], 'email'); ?>
                 <?php $field('lead_email', 'Send website form leads to', $s['lead_email'], 'email', 'Leads are always saved in the Leads tab; add an address to also get each one by email.'); ?>
@@ -66,6 +73,43 @@ $field = function (string $name, string $label, ?string $value, string $type = '
             <button class="btn" name="action" value="save_business">Save business details</button>
         </form>
 
+        <?php elseif ($tab === 'homepage'): ?>
+        <form method="post" action="<?= ADMIN_PATH ?>?tab=homepage" class="panel">
+            <input type="hidden" name="csrf" value="<?= e($csrf) ?>">
+            <fieldset><legend>Header</legend>
+                <?php $field('header_line1', 'Header line 1', $s['header_line1'] ?? ''); ?>
+                <?php $field('header_line2', 'Header line 2 (red, italic)', $s['header_line2'] ?? ''); ?>
+                <?php $field('announcement', 'Announcement bar under the menu', $s['announcement'] ?? '', 'text', 'Leave blank to hide it.'); ?>
+            </fieldset>
+            <fieldset><legend>Stats bar</legend>
+                <?php for ($i = 0; $i < 4; $i++): $st = $s['stats'][$i] ?? ['', '']; ?>
+                    <div class="row">
+                        <?php $field("stat_label_$i", 'Label', $st[0]); ?>
+                        <?php $field("stat_value_$i", 'Number', $st[1]); ?>
+                    </div>
+                <?php endfor; ?>
+            </fieldset>
+            <?php for ($i = 0; $i < 3; $i++): $pl = $s['plans'][$i] ?? ['name' => '', 'old' => '', 'price' => '', 'features' => []]; ?>
+                <fieldset><legend>Monthly plan <?= $i + 1 ?></legend>
+                    <?php $field("plan_name_$i", 'Plan name', $pl['name']); ?>
+                    <div class="row">
+                        <?php $field("plan_old_$i", 'Old price (crossed out)', $pl['old'] ?? ''); ?>
+                        <?php $field("plan_price_$i", 'Price', $pl['price']); ?>
+                    </div>
+                    <label>Features (one per line)
+                        <textarea name="plan_features_<?= $i ?>" rows="5"><?= e(implode("\n", (array) $pl['features'])) ?></textarea></label>
+                </fieldset>
+            <?php endfor; ?>
+            <fieldset><legend>Embed codes</legend>
+                <label>Form embed code (shown on every page)
+                    <textarea name="form_embed" rows="5" spellcheck="false"><?= e($s['form_embed'] ?? '') ?></textarea></label>
+                <p class="help">Leave blank to use the website's built-in form (leads then appear under the Leads tab).</p>
+                <label>Reviews embed code (homepage)
+                    <textarea name="reviews_embed" rows="4" spellcheck="false"><?= e($s['reviews_embed'] ?? '') ?></textarea></label>
+            </fieldset>
+            <button class="btn" name="action" value="save_homepage">Save homepage</button>
+        </form>
+
         <?php elseif ($tab === 'branding'): ?>
         <form method="post" action="<?= ADMIN_PATH ?>?tab=branding" enctype="multipart/form-data" class="panel">
             <input type="hidden" name="csrf" value="<?= e($csrf) ?>">
@@ -85,7 +129,8 @@ $field = function (string $name, string $label, ?string $value, string $type = '
             <?php endforeach; ?>
             <fieldset><legend>Brand colors</legend>
                 <div class="row">
-                    <label>Primary (red) <input type="color" name="color_primary" value="<?= e($s['colors']['primary']) ?>"></label>
+                    <label>Primary (red-orange) <input type="color" name="color_primary" value="<?= e($s['colors']['primary']) ?>"></label>
+                    <label>Navy (menu bar) <input type="color" name="color_navy" value="<?= e($s['colors']['navy'] ?? '#0f227e') ?>"></label>
                     <label>Accent (yellow) <input type="color" name="color_accent" value="<?= e($s['colors']['accent']) ?>"></label>
                 </div>
             </fieldset>

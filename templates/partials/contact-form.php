@@ -1,4 +1,22 @@
-<?php $formId = 'f' . substr(md5((string) mt_rand()), 0, 6); ?>
+<?php
+// The client's form widget (set in the dashboard) replaces the built-in form.
+// It can only render once per page, so later calls fall back to a call-to-action.
+if ($embed = trim((string) site('form_embed'))):
+    if (empty($GLOBALS['__form_embedded'])):
+        $GLOBALS['__form_embedded'] = true; ?>
+<div class="form-embed">
+    <?php if (empty($bare)): ?><h2 class="lead-form__title"><?= e($title ?? 'Get a Free Inspection') ?></h2><?php endif; ?>
+    <?= $embed ?>
+</div>
+<?php else: ?>
+<div class="form-embed form-embed--cta">
+    <h2 class="lead-form__title"><?= e($title ?? 'Get a Free Inspection') ?></h2>
+    <p><a class="btn btn--primary btn--block" href="/contact">Request a Free Inspection</a></p>
+    <p><a href="tel:<?= e(site('phone_href')) ?>"><?= e(site('phone')) ?></a></p>
+</div>
+<?php endif; return; endif;
+
+$formId = 'f' . substr(md5((string) mt_rand()), 0, 6); ?>
 <form class="lead-form" method="post" action="/contact" data-lead-form novalidate>
     <h2 class="lead-form__title"><?= e($title ?? 'Get a Free Inspection') ?></h2>
     <input type="hidden" name="csrf" value="<?= e(csrf_token()) ?>">

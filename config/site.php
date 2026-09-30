@@ -40,7 +40,44 @@ return [
     'logo'        => '/assets/img/logo.webp',
     'logo_light'  => '/assets/img/logo-light.webp',   // white-text version for the dark footer
     'favicon'     => '/assets/img/favicon.svg',
-    'colors'      => ['primary' => '#dd2127', 'accent' => '#f9d51d'],
+    // Red-orange buttons, navy bars and the logo's yellow, matching the current amcopest.com.
+    'colors'      => ['primary' => '#d72a01', 'navy' => '#0f227e', 'accent' => '#f9d51d'],
+
+    // Header text beside the logo.
+    'header_line1' => 'Pest Control in New Jersey Pro Verified Expert',
+    'header_line2' => 'For More Than 90 Years!',
+    // Optional thin bar under the menu (empty = hidden).
+    'announcement' => '',
+
+    // Stats bar on the homepage – VERIFY the numbers.
+    'stats' => [
+        ['Expert Staff', '25+'],
+        ['Years of Experience', '90+'],
+        ['Customer Satisfaction', '1000+'],
+        ['Passionate Employees', '50+'],
+    ],
+
+    // Monthly plans on the homepage – VERIFY prices and features.
+    'plans' => [
+        ['name' => 'Home Protection Plan', 'old' => '$45/month', 'price' => '$35/month', 'style' => 'orange',
+         'features' => ['Year Round Protection', 'Covers 30+ Pests', 'Initial Service Interior/Exterior', '3 Additional Services at Request', 'Free Emergency Service']],
+        ['name' => 'Convenience Plan', 'old' => '$65/month', 'price' => '$55/month', 'style' => 'gray',
+         'features' => ['Year Round Protection', 'Covers 30+ Pests', '3 Exterior Power Sprays', 'Free Emergency Service', 'Carpenter Ant Control']],
+        ['name' => 'Convenience Plan Plus', 'old' => '$85/month', 'price' => '$75/month', 'style' => 'yellow',
+         'features' => ['Year Round Protection', 'Covers 30+ Pests', '3 Exterior Power Sprays', 'Carpenter Bee Control', 'Complete Termite Coverage']],
+    ],
+
+    // Third-party embeds (editable in the dashboard). The form embed replaces the
+    // built-in form on every page; leave it empty to use the built-in form.
+    'form_embed' => '<script id="__custom_form_widget" src="https://www.cdnstyles.com/static/custom_form_widget/v1/custom_form.widget.js" data="eyJiYWNrZ3JvdW5kQ29sb3IiOiIjZmZmZmZmIiwiYmFzZVVSTCI6Imh0dHBzOi8vZm9ybXMtcHJvZC5hcGlnYXRld2F5LmNvIiwiYm9yZGVyQ29sb3IiOiIjMDAwMDAwIiwiYm9yZGVyUmFkaXVzIjoiNXB4IiwiYm9yZGVyU3R5bGUiOiJzb2xpZCIsImJvcmRlcldpZHRoIjoiMXB4IiwiZm9ybUlkIjoiRm9ybUNvbmZpZ0lELTIxNWFkZmQ0LWQwZmMtNDk5OC1iZjNlLTNkMTUwMDA4NzVkNyIsInBhZGRpbmciOiIyMHB4IiwicHJpbWFyeUNvbG9yIjoiIzE4NzZEMiIsInByaW1hcnlGb250Q29sb3IiOiIjMDAwMDAwIiwid2lkdGgiOiIxMDAlIn0="></script>',
+    'reviews_embed' => '<script src="https://static.elfsight.com/platform/platform.js" data-use-service-core defer></script>' . "\n" . '<div class="elfsight-app-820f57af-31e7-4682-a86a-ce2ffb020e30"></div>',
+
+    // "Why Choose Us" videos – one is picked at random on each visit.
+    'pest_videos' => [
+        ['Ants', 'https://www.canva.com/design/DAF-X_NLThE/-DG6cQ6iHB3xCgkZ503ckw/watch?embed', '/pest-library-ants'],
+        ['Termites', 'https://www.canva.com/design/DAGFgVa1RP0/-Bbzx4KwhhZjAyUXlcrHJA/watch?embed', '/pest-library-termites'],
+        ['Bees', 'https://www.canva.com/design/DAF-kmVZ36w/HX1E5d_Aqi39aY2WSgO_qA/watch?embed', '/pest-library-bees'],
+    ],
 
     // Maintenance switch: when false, visitors get a "back soon" page (HTTP 503)
     // while a logged-in admin still sees the full site.
@@ -51,6 +88,14 @@ return [
     'florida_office' => [
         'phone'      => '(305) 698-7884',
         'phone_href' => '+13056987884',
+    ],
+
+    // Second office shown in the footer – VERIFY the street address.
+    'second_office' => [
+        'label'  => 'Amco Pest Solutions, Inc.',
+        'street' => '',
+        'city'   => 'Toms River, NJ',
+        'phone'  => '(732) 341-1134',
     ],
 
     'social' => [
