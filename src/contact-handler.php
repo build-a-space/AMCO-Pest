@@ -85,7 +85,6 @@ function send_lead_email(string $to, string $subject, string $body, string $repl
             CURLOPT_HTTPHEADER => ['Authorization: Bearer ' . $key, 'Content-Type: application/json'],
             CURLOPT_POSTFIELDS => json_encode($payload)]);
         curl_exec($ch);
-        curl_close($ch);
         return;
     }
     $headers = 'From: ' . site('email');

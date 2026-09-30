@@ -3,6 +3,10 @@ declare(strict_types=1);
 
 define('ROOT', dirname(__DIR__));
 
+// Never print PHP notices into pages (they break headers/cookies); log them instead.
+ini_set('display_errors', getenv('APP_DEBUG') ? '1' : '0');
+ini_set('log_errors', '1');
+
 require ROOT . '/src/storage.php';
 $GLOBALS['site'] = load_settings();
 

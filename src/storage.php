@@ -95,7 +95,6 @@ function blob_request(string $method, string $url, ?string $body = null, array $
     }
     $res = curl_exec($ch);
     $code = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
-    curl_close($ch);
     if ($res === false || $code >= 400) {
         throw new RuntimeException("Blob storage error ($code): " . substr((string) $res, 0, 200));
     }
@@ -155,8 +154,7 @@ function blob_fetch_many(array $urls): array
     foreach ($handles as $u => $ch) {
         $out[$u] = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE) === 200 ? (string) curl_multi_getcontent($ch) : '';
         curl_multi_remove_handle($mh, $ch);
-        curl_close($ch);
-    }
+        }
     curl_multi_close($mh);
     return $out;
 }
