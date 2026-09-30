@@ -2,9 +2,7 @@
 // Handles POST /contact. Validates, drops obvious spam, stores the lead and
 // optionally emails it. Responds with JSON for fetch() and redirects otherwise.
 
-if (session_status() !== PHP_SESSION_ACTIVE) {
-    session_start();
-}
+start_session();
 
 $wantsJson = str_contains($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json');
 
@@ -25,7 +23,7 @@ $in = fn(string $k, int $max = 200) => mb_substr(trim((string) ($_POST[$k] ?? ''
 if ($in('website') !== '') {
     $respond(true, 'Thanks! We will be in touch shortly.');
 }
-if (!hash_equals($_SESSION['csrf'] ?? '', (string) ($_POST['csrf'] ?? ''))) {
+if (!csrf_valid()) {
     $respond(false, 'Your session expired. Please reload the page and try again.');
 }
 

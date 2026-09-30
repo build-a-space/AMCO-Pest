@@ -15,6 +15,21 @@ if ($path !== '/' && (str_ends_with($path, '/') || str_ends_with($path, '/index.
 
 $slug = trim($path, '/');
 
+// Hidden admin dashboard (not linked or listed anywhere public).
+if ('/' . $slug === ADMIN_PATH) {
+    require ROOT . '/src/admin/dashboard.php';
+    exit;
+}
+
+// Maintenance switch: visitors get a 503 "back soon" page; signed-in admins see the site.
+if (!site('site_online') && !is_admin()) {
+    http_response_code(503);
+    header('Retry-After: 3600');
+    header('X-Robots-Tag: noindex');
+    echo render('offline');
+    exit;
+}
+
 // Generated files.
 if ($slug === 'sitemap.xml') {
     require ROOT . '/src/sitemap.php';

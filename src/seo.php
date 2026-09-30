@@ -48,7 +48,7 @@ function local_business_schema(): array
         'telephone' => site('phone'),
         'email' => site('email'),
         'image' => abs_url(ltrim(site('default_og_image'), '/')),
-        'logo' => abs_url('assets/img/logo.svg'),
+        'logo' => abs_url(ltrim(site('logo'), '/')),
         'priceRange' => '$$',
         'address' => [
             '@type' => 'PostalAddress',
@@ -66,6 +66,11 @@ function local_business_schema(): array
             ['@type' => 'AdministrativeArea', 'name' => 'South Florida'],
         ],
         'sameAs' => array_values(site('social')),
+        'contactPoint' => array_values(array_filter([
+            ['@type' => 'ContactPoint', 'telephone' => site('phone_href'), 'contactType' => 'customer service', 'areaServed' => ['NJ', 'NY']],
+            site('toll_free') ? ['@type' => 'ContactPoint', 'telephone' => tel_href(site('toll_free')), 'contactType' => 'customer service', 'contactOption' => 'TollFree'] : null,
+            !empty(site('florida_office')['phone']) ? ['@type' => 'ContactPoint', 'telephone' => site('florida_office')['phone_href'], 'contactType' => 'customer service', 'areaServed' => 'FL'] : null,
+        ])),
     ];
 }
 

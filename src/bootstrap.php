@@ -3,13 +3,51 @@ declare(strict_types=1);
 
 define('ROOT', dirname(__DIR__));
 
-$GLOBALS['site'] = require ROOT . '/config/site.php';
+$GLOBALS['site'] = load_settings();
 
 require ROOT . '/src/catalog.php';
+require ROOT . '/src/admin/auth.php';
 require ROOT . '/src/pages.php';
 require ROOT . '/src/seo.php';
 
-function site(string $key = null)
+/** config/site.php defaults, overlaid with dashboard edits from storage/settings.json. */
+function load_settings(): array
+{
+    $defaults = require ROOT . '/config/site.php';
+    $file = ROOT . '/storage/settings.json';
+    $saved = is_file($file) ? (json_decode((string) file_get_contents($file), true) ?: []) : [];
+    // Lists (hours) are replaced wholesale rather than merged index by index.
+    foreach ($saved as $k => $v) {
+        $defaults[$k] = (is_array($v) && is_array($defaults[$k] ?? null) && !array_is_list($v))
+            ? array_replace($defaults[$k], $v) : $v;
+    }
+    return $defaults;
+}
+
+/** Persist dashboard edits (only the keys passed in) to storage/settings.json. */
+function save_settings(array $changes): void
+{
+    $file = ROOT . '/storage/settings.json';
+    if (!is_dir(dirname($file))) {
+        mkdir(dirname($file), 0775, true);
+    }
+    $saved = is_file($file) ? (json_decode((string) file_get_contents($file), true) ?: []) : [];
+    $saved = array_replace($saved, $changes);
+    file_put_contents($file, json_encode($saved, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE), LOCK_EX);
+    $GLOBALS['site'] = load_settings();
+}
+
+/** "(732) 681-8283" -> "+17326818283" for tel: links. */
+function tel_href(string $phone): string
+{
+    $digits = preg_replace('/\D+/', '', $phone);
+    if (strlen($digits) === 10) {
+        $digits = '1' . $digits;
+    }
+    return '+' . $digits;
+}
+
+function site(?string $key = null)
 {
     return $key === null ? $GLOBALS['site'] : ($GLOBALS['site'][$key] ?? null);
 }
@@ -111,10 +149,25 @@ function imported_content(string $slug): ?array
     return ['html' => (string) file_get_contents($html), 'meta' => $meta];
 }
 
+function start_session(): void
+{
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        return;
+    }
+    $https = ($_SERVER['HTTPS'] ?? '') === 'on' || ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https';
+    session_name('amco_sid');
+    session_set_cookie_params(['lifetime' => 0, 'path' => '/', 'secure' => $https, 'httponly' => true, 'samesite' => 'Lax']);
+    session_start();
+}
+
 function csrf_token(): string
 {
-    if (session_status() !== PHP_SESSION_ACTIVE) {
-        session_start();
-    }
+    start_session();
     return $_SESSION['csrf'] ??= bin2hex(random_bytes(16));
+}
+
+function csrf_valid(): bool
+{
+    start_session();
+    return hash_equals($_SESSION['csrf'] ?? '', (string) ($_POST['csrf'] ?? ''));
 }

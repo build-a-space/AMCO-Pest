@@ -4,3 +4,5 @@ content/raw/
 data/crawl-report.json
 .DS_Store
 .env
+public/uploads/*
+!public/uploads/.htaccess

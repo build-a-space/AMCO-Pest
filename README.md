@@ -15,6 +15,31 @@ npm run check        # in a second terminal: verifies every URL, title, meta, ca
 
 Requires PHP 8.1+ and Node 20+.
 
+## Admin dashboard
+
+Private URL: **`/dashboard-4-admin-panel`** (not linked anywhere, not in the sitemap, always `noindex`).
+
+Create the login once on the server:
+
+```bash
+php scripts/admin-password.php yourname      # prompts for a password (10+ characters)
+```
+
+No shell access on the host? Set `ADMIN_USER` and `ADMIN_PASSWORD` environment variables instead, sign in, then change the password under **Account** (that saves it to `storage/admin.json`).
+
+What you can change there:
+
+| Tab | Controls |
+|---|---|
+| Business details | Business/legal name, tagline, main phone, toll-free, South Florida phone, public email, lead email, address, hours (visitor text + Google format), social links |
+| Logo & colors | Header logo, footer (white-text) logo, favicon, social share image, brand red/yellow |
+| Site on / off | Turn the site off (visitors see a "back soon" page with your phone number, HTTP 503; you still see the full site while signed in), offline message, allow/block Google indexing |
+| Leads | Every contact-form submission, newest first, with CSV download |
+| Account | Change username and password |
+
+Security: hashed passwords, CSRF tokens on every form, 15-minute lockout after 5 failed logins, 2-hour idle timeout, uploads restricted to images (unsafe SVGs rejected, no script execution in `/uploads`).
+Dashboard edits are stored in `storage/settings.json` and override `config/site.php`. Keep `storage/` and `public/uploads/` writable by PHP and back them up; they're git-ignored.
+
 ## How it's organised
 
 ```
@@ -73,7 +98,7 @@ Raw HTML is kept in `content/raw/` (git-ignored) for re-parsing.
 
 1. **Verify business details** in `config/site.php` (anything marked `VERIFY`: phone, email, address, hours).
 2. Run the importer, then review pages side by side with the live site.
-3. Swap in the real logo (`public/assets/img/logo.svg`, `logo-light.svg`) and a real share image.
-4. Set `LEAD_EMAIL` so form leads are emailed (they're always saved to `storage/leads.csv`).
-5. Set `SITE_INDEXABLE=true` (or flip `indexable` in `config/site.php`). **Until then every page is `noindex` and robots.txt blocks crawlers**, so this build can't compete with the live site.
+3. Create the admin login (`php scripts/admin-password.php yourname`).
+4. In the dashboard, set the lead email so form submissions are emailed (they're always listed under **Leads**).
+5. In the dashboard under **Site on / off**, turn on **Allow Google to index the site**. **Until then every page is `noindex` and robots.txt blocks crawlers**, so this build can't compete with the live site.
 6. Deploy `public/` as the web root on any PHP 8.1+ host (Apache `.htaccess` included; for Nginx use `try_files $uri /index.php?$query_string;`).

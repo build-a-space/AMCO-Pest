@@ -30,7 +30,7 @@ $current = '/' . ($page['slug'] ?? '');
 <header class="site-header">
     <div class="container site-header__inner">
         <a class="logo" href="/" aria-label="<?= e(site('name')) ?> home">
-            <img src="/assets/img/logo.svg" alt="<?= e(site('name')) ?>" width="180" height="48">
+            <img src="<?= e(site('logo')) ?>" alt="<?= e(site('name')) ?>" width="170" height="55">
         </a>
         <button class="nav-toggle" aria-expanded="false" aria-controls="site-nav">
             <span class="nav-toggle__bar"></span><span class="visually-hidden">Menu</span>

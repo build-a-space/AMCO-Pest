@@ -3,13 +3,14 @@
 <footer class="site-footer">
     <div class="container site-footer__grid">
         <div>
-            <img src="/assets/img/logo-light.svg" alt="<?= e(site('name')) ?>" width="180" height="48" loading="lazy">
+            <img src="<?= e(site('logo_light')) ?>" alt="<?= e(site('name')) ?>" width="200" height="65" loading="lazy">
             <p><?= e(site('tagline')) ?>. Proud member of QualityPro and an authorized Sentricon® and Termidor® provider.</p>
             <address>
                 <?= e($a['street']) ?><br><?= e($a['city']) ?>, <?= e($a['region']) ?> <?= e($a['postal']) ?><br>
                 <a href="tel:<?= e(site('phone_href')) ?>"><?= e(site('phone')) ?></a><br>
-                Toll-free: <?= e(site('toll_free')) ?><br>
-                South Florida: <a href="tel:<?= e(site('florida_office')['phone_href']) ?>"><?= e(site('florida_office')['phone']) ?></a><br>
+                <?php if (site('toll_free')): ?>Toll-free: <a href="tel:<?= e(tel_href(site('toll_free'))) ?>"><?= e(site('toll_free')) ?></a><br><?php endif; ?>
+                <?php if (!empty(site('florida_office')['phone'])): ?>South Florida: <a href="tel:<?= e(site('florida_office')['phone_href']) ?>"><?= e(site('florida_office')['phone']) ?></a><br><?php endif; ?>
+                <?= e(site('hours_text')) ?><br>
                 <a href="mailto:<?= e(site('email')) ?>"><?= e(site('email')) ?></a>
             </address>
         </div>

@@ -1,14 +1,16 @@
 /* Amco Pest Solutions – main stylesheet. Plain CSS, no build step. */
 :root {
-  --brand: #0f5132;        /* deep green */
-  --brand-2: #157347;
-  --accent: #f59e0b;       /* amber call-to-action */
-  --accent-ink: #1f1300;
-  --ink: #1b2430;
-  --muted: #5b6675;
-  --line: #e3e7ec;
+  /* Brand colors come from the AMCO logo; the dashboard can override --brand and --accent. */
+  --brand: #dd2127;        /* AMCO red */
+  --brand-2: color-mix(in srgb, var(--brand) 82%, #000);
+  --accent: #f9d51d;       /* AMCO yellow swoosh */
+  --accent-ink: #1c1c1c;
+  --ink: #1c1c1c;
+  --dark: #181818;
+  --muted: #5c5c5c;
+  --line: #e6e6e6;
   --bg: #ffffff;
-  --bg-alt: #f4f7f5;
+  --bg-alt: #f7f6f3;
   --radius: 10px;
   --shadow: 0 6px 24px rgba(15, 30, 20, .08);
   --container: 1180px;
@@ -43,7 +45,7 @@ code { background: var(--bg-alt); padding: .1em .35em; border-radius: 4px; font-
   font-weight: 700; text-decoration: none; border: 2px solid transparent; cursor: pointer; font-size: 1rem; transition: transform .15s, background .15s; }
 .btn:hover { transform: translateY(-1px); }
 .btn--accent { background: var(--accent); color: var(--accent-ink); }
-.btn--accent:hover { background: #fbbf24; color: var(--accent-ink); }
+.btn--accent:hover { background: color-mix(in srgb, var(--accent) 85%, #fff); color: var(--accent-ink); }
 .btn--primary { background: var(--brand); color: #fff; }
 .btn--primary:hover { background: var(--brand-2); color: #fff; }
 .btn--ghost { border-color: rgba(255,255,255,.7); color: #fff; }
@@ -52,12 +54,14 @@ code { background: var(--bg-alt); padding: .1em .35em; border-radius: 4px; font-
 .btn--block { width: 100%; }
 
 /* Top bar + header */
-.topbar { background: var(--brand); color: #d8efe2; font-size: .88rem; }
+.topbar { background: var(--dark); color: #ddd; font-size: .88rem; }
+.topbar__phone { color: var(--accent) !important; }
 .topbar__inner { display: flex; justify-content: space-between; gap: 1rem; padding-top: .4rem; padding-bottom: .4rem; }
 .topbar__phone { color: #fff; font-weight: 700; text-decoration: none; white-space: nowrap; }
 .site-header { background: #fff; border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 50; }
 .site-header__inner { display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 72px; }
-.logo img { display: block; height: 48px; width: auto; }
+.logo img { display: block; height: 58px; width: auto; }
+@media (max-width: 560px) { .logo img { height: 46px; } }
 
 .site-nav { display: flex; align-items: center; gap: 1.25rem; }
 .site-nav > ul { list-style: none; display: flex; gap: .25rem; margin: 0; padding: 0; }
@@ -99,16 +103,18 @@ code { background: var(--bg-alt); padding: .1em .35em; border-radius: 4px; font-
 .breadcrumbs a { color: var(--muted); }
 
 /* Hero */
-.hero { background: linear-gradient(120deg, var(--brand) 0%, #0b3b25 100%); color: #fff; padding: 3.5rem 0; }
+.hero { background: linear-gradient(115deg, var(--dark) 0%, #2a2a2a 55%, var(--brand-2) 140%); color: #fff; padding: 3.5rem 0; border-bottom: 6px solid var(--accent); }
 .hero__inner { display: grid; grid-template-columns: 1.2fr 1fr; gap: 3rem; align-items: center; }
-.hero .lead { font-size: 1.15rem; color: #d8efe2; }
+.hero .lead { font-size: 1.15rem; color: #e8e8e8; }
 .hero__actions { display: flex; flex-wrap: wrap; gap: .8rem; margin: 1.5rem 0; }
 .eyebrow { text-transform: uppercase; letter-spacing: .08em; font-size: .8rem; font-weight: 700; color: var(--accent); margin: 0 0 .7rem; }
+.post-head .eyebrow { color: var(--brand); }
 .badges { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: .5rem; }
 .badges li { background: rgba(255,255,255,.12); padding: .35rem .8rem; border-radius: 999px; font-size: .85rem; }
 .hero__form .lead-form { color: var(--ink); }
 
-.page-hero { background: var(--bg-alt); padding: 2.2rem 0 2rem; border-bottom: 1px solid var(--line); }
+.page-hero { background: var(--bg-alt); padding: 2.2rem 0 2rem; border-bottom: 4px solid var(--accent); }
+.page-hero h1 { color: var(--ink); }
 .page-hero .lead { color: var(--muted); font-size: 1.1rem; max-width: 760px; margin: 0; }
 
 /* Sections */
@@ -195,15 +201,14 @@ code { background: var(--bg-alt); padding: .1em .35em; border-radius: 4px; font-
 .big-phone { font-size: 1.6rem; font-weight: 800; text-decoration: none; }
 
 /* CTA band + footer */
-.cta-band { background: var(--accent); color: var(--accent-ink); padding: 2.2rem 0; }
+.cta-band { background: var(--brand); color: #fff; padding: 2.2rem 0; }
 .cta-band__inner { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap; }
 .cta-band h2 { margin: 0 0 .3rem; }
 .cta-band p { margin: 0; }
 .cta-band__actions { display: flex; gap: .8rem; flex-wrap: wrap; }
-.cta-band .btn--accent { background: var(--ink); color: #fff; }
-.cta-band .btn--ghost { border-color: var(--ink); color: var(--ink); }
+.cta-band .btn--ghost { border-color: #fff; color: #fff; }
 
-.site-footer { background: #0b2a1c; color: #c9dcd1; padding: 3rem 0 1rem; font-size: .95rem; }
+.site-footer { background: var(--dark); color: #cfcfcf; padding: 3rem 0 1rem; font-size: .95rem; }
 .site-footer a { color: #fff; text-decoration: none; }
 .site-footer a:hover { text-decoration: underline; }
 .site-footer__grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 2rem; }
@@ -213,6 +218,8 @@ code { background: var(--bg-alt); padding: .1em .35em; border-radius: 4px; font-
 .site-footer address { font-style: normal; margin-top: 1rem; }
 .site-footer__bottom { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem; border-top: 1px solid rgba(255,255,255,.12); margin-top: 2rem; padding-top: 1rem; font-size: .85rem; }
 .mobile-call { display: none; }
+.admin-preview { background: var(--accent); color: var(--ink); text-align: center; padding: .5rem 16px; font-weight: 700; font-size: .9rem; }
+.site-footer__logo { background: none; }
 
 @media (max-width: 900px) {
   .hero__inner, .split, .with-sidebar, .with-sidebar--wide, .area-columns { grid-template-columns: 1fr; }

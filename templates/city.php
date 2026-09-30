@@ -21,7 +21,7 @@ $page['faq'] = [
     <div class="container with-sidebar">
         <article class="prose">
             <h2>Your Local Exterminator in <?= e($town) ?>, <?= e($st) ?></h2>
-            <?php if ($st === 'FL'): $fl = site('florida_office'); ?>
+            <?php if ($st === 'FL' && !empty(site('florida_office')['phone'])): $fl = site('florida_office'); ?>
                 <p class="notice">South Florida office: <a href="tel:<?= e($fl['phone_href']) ?>"><?= e($fl['phone']) ?></a></p>
             <?php endif; ?>
             <p>Pests do not take a day off, and neither does our commitment to <?= e($town) ?> homeowners and businesses. Amco Pest Solutions provides inspections, treatments and prevention plans designed around local conditions, seasonal pest pressure and the way your property is built.</p>

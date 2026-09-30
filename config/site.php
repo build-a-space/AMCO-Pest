@@ -1,5 +1,9 @@
 <?php
 /**
+ * Default site-wide settings. Anything saved from the admin dashboard
+ * (/dashboard-4-admin-panel) is stored in storage/settings.json and overrides
+ * these values, so edit here for defaults and in the dashboard day to day.
+ *
  * Site-wide settings. Edit business details here; every page, the schema.org
  * markup and the footer read from this one file.
  *
@@ -29,7 +33,19 @@ return [
         'country'  => 'US',
     ],
     'geo'         => ['lat' => 40.1668, 'lng' => -74.0925],
-    'hours'       => ['Mo-Fr 08:30-17:30', 'Sa 08:30-14:30'],
+    'hours'       => ['Mo-Fr 08:30-17:30', 'Sa 08:30-14:30'],   // schema.org format
+    'hours_text'  => 'Mon–Fri 8:30am–5:30pm · Sat 8:30am–2:30pm',
+
+    // Branding (uploads from the dashboard replace these paths).
+    'logo'        => '/assets/img/logo.webp',
+    'logo_light'  => '/assets/img/logo-light.webp',   // white-text version for the dark footer
+    'favicon'     => '/assets/img/favicon.svg',
+    'colors'      => ['primary' => '#dd2127', 'accent' => '#f9d51d'],
+
+    // Maintenance switch: when false, visitors get a "back soon" page (HTTP 503)
+    // while a logged-in admin still sees the full site.
+    'site_online'     => true,
+    'offline_message' => "We're making some updates to our website. Please call us – we're still here to help!",
 
     // Secondary office shown on South Florida pages only.
     'florida_office' => [
@@ -46,5 +62,5 @@ return [
     // set LEAD_EMAIL to also send each one by mail().
     'lead_email'  => getenv('LEAD_EMAIL') ?: '',
 
-    'default_og_image' => '/assets/img/og-default.svg',
+    'default_og_image' => '/assets/img/og-default.jpg',
 ];
