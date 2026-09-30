@@ -8,6 +8,8 @@
             <address>
                 <?= e($a['street']) ?><br><?= e($a['city']) ?>, <?= e($a['region']) ?> <?= e($a['postal']) ?><br>
                 <a href="tel:<?= e(site('phone_href')) ?>"><?= e(site('phone')) ?></a><br>
+                Toll-free: <?= e(site('toll_free')) ?><br>
+                South Florida: <a href="tel:<?= e(site('florida_office')['phone_href']) ?>"><?= e(site('florida_office')['phone']) ?></a><br>
                 <a href="mailto:<?= e(site('email')) ?>"><?= e(site('email')) ?></a>
             </address>
         </div>

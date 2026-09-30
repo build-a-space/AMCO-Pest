@@ -13,6 +13,8 @@
         <aside class="contact-info">
             <h2>Call or Visit</h2>
             <p><a class="big-phone" href="tel:<?= e(site('phone_href')) ?>"><?= e(site('phone')) ?></a></p>
+            <p>Toll-free: <?= e(site('toll_free')) ?><br>South Florida office: <a href="tel:<?= e(site('florida_office')['phone_href']) ?>"><?= e(site('florida_office')['phone']) ?></a></p>
+            <p>Hours: Mon–Fri 8:30am–5:30pm, Sat 8:30am–2:30pm</p>
             <p><a href="mailto:<?= e(site('email')) ?>"><?= e(site('email')) ?></a></p>
             <address><?= e(site('legal_name')) ?><br><?= e($a['street']) ?><br><?= e($a['city']) ?>, <?= e($a['region']) ?> <?= e($a['postal']) ?></address>
             <h3>Areas Served</h3>

@@ -16,18 +16,26 @@ return [
     // in robots.txt so this rebuild never competes with the live site.
     'indexable'   => filter_var(getenv('SITE_INDEXABLE') ?: 'false', FILTER_VALIDATE_BOOLEAN),
 
-    'phone'       => '(305) 698-7884',          // VERIFY – listed on public directories
-    'phone_href'  => '+13056987884',
+    // Main office: Wall Township, NJ. Used site-wide.
+    'phone'       => '(732) 681-8283',
+    'phone_href'  => '+17326818283',
+    'toll_free'   => '(888) 593-4948',
     'email'       => 'info@amcopest.com',        // VERIFY
-    'address'     => [                           // VERIFY – from public listings
-        'street'   => '1775 NJ-34',
+    'address'     => [                           // Wall Township headquarters
+        'street'   => '1775 State Route 34, Suite C7',
         'city'     => 'Wall Township',
         'region'   => 'NJ',
         'postal'   => '07727',
         'country'  => 'US',
     ],
     'geo'         => ['lat' => 40.1668, 'lng' => -74.0925],
-    'hours'       => 'Mo-Fr 08:00-17:00',       // VERIFY
+    'hours'       => ['Mo-Fr 08:30-17:30', 'Sa 08:30-14:30'],
+
+    // Secondary office shown on South Florida pages only.
+    'florida_office' => [
+        'phone'      => '(305) 698-7884',
+        'phone_href' => '+13056987884',
+    ],
 
     'social' => [
         'facebook' => 'https://www.facebook.com/AmcoPestServices/',
